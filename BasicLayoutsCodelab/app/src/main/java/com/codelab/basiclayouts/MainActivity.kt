@@ -331,3 +331,4 @@ fun BottomNavigationPreview() {
 fun MySoothePreview() {
     MySootheApp()
 }
+
