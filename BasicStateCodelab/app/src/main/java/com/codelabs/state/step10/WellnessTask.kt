@@ -5,5 +5,5 @@ typealias TaskId = Long
 data class WellnessTask(
     val id: TaskId,
     val label: String,
-    val checked: Boolean,
+    var checked: Boolean,
 )
