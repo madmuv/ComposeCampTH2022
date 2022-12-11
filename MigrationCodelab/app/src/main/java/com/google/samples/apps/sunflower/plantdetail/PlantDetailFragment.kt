@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ShareCompat
 import androidx.core.widget.NestedScrollView
@@ -65,6 +67,18 @@ class PlantDetailFragment : Fragment() {
                         plantDetailViewModel.addPlantToGarden()
                         Snackbar.make(root, R.string.added_plant_to_garden, Snackbar.LENGTH_LONG)
                             .show()
+                    }
+                }
+            }
+
+            composeView.apply {
+                // ตัวนี้ถ้าไม่ set compose จะไม่เป็นไปตาม lifecycle ของ view ตัวแม่
+                setViewCompositionStrategy(
+                    ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+                )
+                setContent {
+                    MaterialTheme {
+                        PlantDetailDescription(plantDetailViewModel)
                     }
                 }
             }
