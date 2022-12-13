@@ -26,7 +26,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.samples.crane.R
 import androidx.compose.samples.crane.data.ExploreModel
@@ -69,7 +70,13 @@ fun ExploreSection(
                 ExploreList(exploreList, onItemClicked, listState = listState)
 
                 // TODO: bad practice , use derivedStateOf
-                val showButton = listState.firstVisibleItemIndex > 0
+                val showButton by remember {
+                    derivedStateOf {
+                        // ตัวนี้ derivedStateOf จะใช้สำหรับ function ที่ input มากกว่า output เยอะๆ จะเปลี่ยนค่าต่างๆเป็น boolean
+                        listState.firstVisibleItemIndex > 0
+                    }
+                }
+
                 if (showButton) {
                     val scope = rememberCoroutineScope()
                     FloatingActionButton(

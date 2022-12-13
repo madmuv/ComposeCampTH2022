@@ -19,19 +19,33 @@ package androidx.compose.samples.crane.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.samples.crane.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.delay
 
 private const val SplashWaitTime: Long = 2000
 
 @Composable
-fun LandingScreen(modifier: Modifier = Modifier, onTimeout: () -> Unit) {
+fun LandingScreen(onTimeout: () -> Unit, modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         // TODO Codelab: LaunchedEffect and rememberUpdatedState step
+
         // TODO: Make LandingScreen disappear after loading data
+
+        // code ที่อยู่ในนี้จะเป็น coroutine scope อัตโนมัติ ทำหน้าที่เหมือน onCreate ทำงานแค่ครั้งเดียว ด้วยการให้ key เป็น constant และเป็นตัวล่าสุดเสมอ
+        // สร้าง currentOnTimeOut เพื่อให้เรียก onTimeout ตัวล่าสุดมาใช้
+        val currentOnTimeOut by rememberUpdatedState(newValue = onTimeout)
+
+        LaunchedEffect(true) {
+            delay(SplashWaitTime)
+            currentOnTimeOut()
+        }
         Image(painterResource(id = R.drawable.ic_crane_drawer), contentDescription = null)
     }
 }

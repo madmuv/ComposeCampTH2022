@@ -16,8 +16,8 @@
 
 package com.example.android.codelab.animation.ui.home
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.splineBasedDecay
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -156,9 +156,10 @@ fun Home() {
 
     val lazyListState = rememberLazyListState()
 
-    // The background color. The value is changed by the current tab.
-    // TODO 1: Animate this color change.
-    val backgroundColor = if (tabPage == TabPage.Home) Purple100 else Green300
+    val backgroundColor by animateColorAsState(
+        targetValue = if (tabPage == TabPage.Home) Purple100
+        else Green300,
+    )
 
     // The coroutine scope for event handlers calling suspend functions.
     val coroutineScope = rememberCoroutineScope()
@@ -271,7 +272,7 @@ private fun HomeFloatingActionButton(
             )
             // Toggle the visibility of the content with animation.
             // TODO 2-1: Animate this visibility change.
-            if (extended) {
+            AnimatedVisibility(visible = extended) {
                 Text(
                     text = stringResource(R.string.edit),
                     modifier = Modifier
@@ -289,8 +290,16 @@ private fun HomeFloatingActionButton(
 private fun EditMessage(shown: Boolean) {
     // TODO 2-2: The message should slide down from the top on appearance and slide up on
     //           disappearance.
+
+    // โดยปกติจะเริ่มจาก size ตัวเอง แล้ว animate ไป size ใหม่
     AnimatedVisibility(
-        visible = shown
+        visible = shown,
+        enter = slideInVertically( initialOffsetY = {
+            fullHeight -> -fullHeight
+        }),
+        exit = slideOutVertically(targetOffsetY = {
+            fullHeight -> -fullHeight
+        })
     ) {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -364,6 +373,8 @@ private fun TopicRow(topic: String, expanded: Boolean, onClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
+                // ถ้าอยากให้ show animation เวลา content เปลี่ยนให้ใช้ตัวนี้
+                .animateContentSize()
         ) {
             Row {
                 Icon(
@@ -443,9 +454,16 @@ private fun HomeTabIndicator(
     tabPage: TabPage
 ) {
     // TODO 4: Animate these value changes.
-    val indicatorLeft = tabPositions[tabPage.ordinal].left
-    val indicatorRight = tabPositions[tabPage.ordinal].right
-    val color = if (tabPage == TabPage.Home) Purple700 else Green800
+    val transition = updateTransition(tabPage, label = "Tab indication")
+    val indicatorLeft by transition.animateDp(label = "Indicator Left") { tabPage ->
+        tabPositions[tabPage.ordinal].left
+    }
+    val indicatorRight by transition.animateDp(label = "Indicator Right") { tabPage ->
+        tabPositions[tabPage.ordinal].right
+    }
+    val color by transition.animateColor(label = "Border Color") { tabPage ->
+        if (tabPage == TabPage.Home) Purple700 else Green800
+    }
     Box(
         Modifier
             .fillMaxSize()
@@ -531,7 +549,18 @@ private fun WeatherRow(
 @Composable
 private fun LoadingRow() {
     // TODO 5: Animate this value between 0f and 1f, then back to 0f repeatedly.
-    val alpha = 1f
+    val infiniteTransition = rememberInfiniteTransition()
+    val alpha by infiniteTransition.animateFloat(
+        initialValue =0f,
+        targetValue = 1f,
+        animationSpec = InfiniteRepeatableSpec(
+            animation = keyframes {
+                durationMillis = 1000
+                0.7f at 500
+            },
+            repeatMode = RepeatMode.Reverse
+        )
+    )
     Row(
         modifier = Modifier
             .heightIn(min = 64.dp)
